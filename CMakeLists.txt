@@ -9,7 +9,7 @@ ELSE()
 ENDIF()
 
 find_package( OpenCV REQUIRED )
-find_package( Boost ) s
+find_package( Boost REQUIRED ) 
 
 project(AverageFaces)
 

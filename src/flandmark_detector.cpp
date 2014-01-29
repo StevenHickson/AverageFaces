@@ -8,7 +8,6 @@
  * Copyright (C) 2012 Michal Uricar
  */
 
-#include "stdafx.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

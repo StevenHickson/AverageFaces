@@ -1,7 +1,8 @@
 
-#include "stdafx.h"
-#include "EigenHot.h"
+#include "AverageFaces.h"
 
+using namespace cv;
+using namespace std;
 
 int FindFace(Mat &in, Rect &face, Mat &out) {
 	CascadeClassifier face_cascade = CascadeClassifier(FACE_XML);
@@ -69,11 +70,11 @@ inline void DispFLandmark(Mat &out, FLANDMARK_Model *model, int *bbox, double *l
 	// display landmarks
 	rectangle(out, cvPoint(bbox[0], bbox[1]), cvPoint(bbox[2], bbox[3]), CV_RGB(255,0,0) );
 	rectangle(out, cvPoint(model->bb[0], model->bb[1]), cvPoint(model->bb[2], model->bb[3]), CV_RGB(0,0,255) );
-	/*circle(out, cvPoint((int)landmarks[0], (int)landmarks[1]), 3, CV_RGB(0, 0,255), CV_FILLED);
+	circle(out, cvPoint((int)landmarks[0], (int)landmarks[1]), 3, CV_RGB(0, 0,255), CV_FILLED);
 	for (int i = 2; i < 2*model->data.options.M; i += 2)
 	{
 		circle(out, cvPoint(int(landmarks[i]), int(landmarks[i+1])), 3, CV_RGB(255,0,0), CV_FILLED);
-	}*/
+	}
 }
 
 inline void GetCenterLandmarks(double *landmarks, vector<Point2f> &out) {
@@ -108,22 +109,14 @@ int AlignFLandmark(Mat &in, Rect &face, Mat &out) {
 	double align[] = ALIGNMENT_DATA;
 	GetCenterLandmarks(landmarks,in_points);
 	GetCenterLandmarks(align,out_points);
-	/*for(int i = 0; i <  2*model->data.options.M; i += 2) {
-		in_points[i / 2] = Point(float(landmarks[i]), float(landmarks[i+1]));
-		out_points[i / 2] = Point(float(align[i]), float(align[i+1]));
-	}*/
+
 	Mat h = getAffineTransform(in_points,out_points);
 	for(int j = 0; j < 3; j++) {
-		//cout << in_points[j].x << ", " << in_points[j].y << endl;
 		if(in_points[j].x <= 0 || in_points[j].y <= 0)
 			return -1;
 	}
-	warpAffine(in,out,h, Size(86,86), CV_WARP_FILL_OUTLIERS + CV_INTER_LINEAR);
-	/*Mat h = findHomography(in_points,out_points);
-	warpPerspective(in,out,h,Size(86,86));*/
+	warpAffine(in,out,h, Size(WIDTH,HEIGHT), CV_WARP_FILL_OUTLIERS + CV_INTER_LINEAR);
 	DispFLandmark(in,model,bbox,landmarks);
-	DispCenterLandmark(in,in_points);
-	/*out = in.clone();
-	DispFLandmark(out,model,bbox,landmarks);*/
+	//DispCenterLandmark(in,in_points);
 	return 1;
 }
