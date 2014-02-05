@@ -70,6 +70,31 @@ void AverageImages(string img_dir) {
 	cvWaitKey();
 }
 
+void FindMaxMinMeanDist(string img_dir, string mean_filename) {
+	Mat mean = imread(mean_filename);
+	map<double,string> diffs;
+	for(directory_iterator i(img_dir), end_iter; i != end_iter; i++) {
+		string name = (i->path()).filename().string();
+		string filename = string(img_dir) + string("/") + name;
+		Mat in = imread(filename), diff;
+		absdiff(mean,in,diff);
+		Scalar total = sum(diff);
+		double comp = total[0] + total[1] + total[2];
+		pair<double, string> p(comp, name);
+		diffs.insert(p);
+	}
+	map<double,string>::const_iterator p = diffs.begin();
+	int i = 0;
+	while(p != diffs.end()) {
+		cout << i << ": val = " << p->first << ", name = " << p->second << endl;
+		++p; ++i;
+		//let's wait so we can see the first 20 or so
+		if( i == 20)
+			cin.get();
+	}
+	cin.get();
+}
+
 void AlignAllImages(string img_dir, string align_dir) {
 	for(directory_iterator i(img_dir), end_iter; i != end_iter; i++) {
 		string filename = string(img_dir) + string("/") + (i->path()).filename().string();
@@ -90,9 +115,13 @@ void AlignAllImages(string img_dir, string align_dir) {
 
 int main(int argc, char* argv[]) {
 	//AlignAndDisplayImage(argv[1]);
-	if(argc == 3)
+	assert(argc > 1);
+	int last_arg = atoi(argv[argc - 1]);
+	if(last_arg == 0)
 		AlignAllImages(argv[1],argv[2]);
-	else
+	else if(last_arg == 1)
 		AverageImages(argv[1]);
+	else if(last_arg == 2)
+		FindMaxMinMeanDist(argv[1],argv[2]);
 	return 0;
 }
